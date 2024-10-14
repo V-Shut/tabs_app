@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import "./App.css";
 import { Tab } from "./components/tab";
 import { useNavigate } from "react-router-dom";
+import { Droppable, DragDropContext } from "react-beautiful-dnd";
 
 function App() {
 	const initialTabs = JSON.parse(localStorage.getItem("tabs")) || [];
@@ -23,7 +24,6 @@ function App() {
 
 	const [addTabStatus, setAddTabStatus] = useState(false);
 	const [currentTabs, setCurrentTabs] = useState(initialTabs);
-
 	const navigate = useNavigate();
 	const params = new URLSearchParams(window.location.search);
 
@@ -53,7 +53,19 @@ function App() {
 	const setParams = (param) => {
 		const createdParam = param.toLowerCase().trim().replace(/\s+/g, "");
 		navigate(`?tab=${createdParam}`);
-		console.log(createdParam);
+	};
+
+	const handleOnDragEnd = (result) => {
+		if (!result.destination) {
+			return;
+		}
+
+		const reorderedTabs = Array.from(currentTabs);
+		const [removed] = reorderedTabs.splice(result.source.index, 1);
+		reorderedTabs.splice(result.destination.index, 0, removed);
+
+		setCurrentTabs(reorderedTabs);
+		localStorage.setItem("tabs", JSON.stringify(reorderedTabs));
 	};
 
 	useEffect(() => {
@@ -63,54 +75,64 @@ function App() {
 	}, [currentTabs, navigate]);
 
 	return (
-		<div className="App">
-			<div className="top-head" />
-			<div className="tabs">
-				<img
-					src="img/pinned.png"
-					alt="pinned"
-					className="pinned"
-				/>
-				<div className="tabs-container">
-					{currentTabs.map((tab) => (
-						<Tab
-							tab={tab}
-							deleteTab={deleteTab}
-							setParams={setParams}
-							key={tab}
-							currentTabs={currentTabs}
-						/>
-					))}
+		<DragDropContext onDragEnd={handleOnDragEnd}>
+			<div className="App">
+				<div className="top-head" />
+				<div className="tabs">
+					<img
+						src="img/pinned.png"
+						alt="pinned"
+						className="pinned"
+					/>
+					<Droppable droppableId="tabs">
+						{(provided) => (
+							<div
+								className="tabs-container"
+								{...provided.droppableProps}
+								ref={provided.innerRef}>
+								{currentTabs.map((tab, index) => (
+									<Tab
+										tab={tab}
+										deleteTab={deleteTab}
+										setParams={setParams}
+										index={index}
+										key={tab + index}
+									/>
+								))}
+								{provided.placeholder}
+							</div>
+						)}
+					</Droppable>
+					<img
+						src="img/arrow-up.png"
+						alt="additionally"
+						className={`add-tabs ${addTabStatus ? "active" : ""}`}
+						onClick={() => setAddTabStatus((prev) => !prev)}
+					/>
+					{addTabStatus && (
+						<ul className="add-list">
+							{tabsList.map((tab) => (
+								<li
+									className="item"
+									key={tab}
+									onClick={() => {
+										createTab(tab);
+										setParams(tab);
+									}}>
+									<img
+										src={`img/${tab}.png`}
+										alt=""
+										className="item-icon"
+									/>
+									<p>{tab}</p>
+								</li>
+							))}
+						</ul>
+					)}
 				</div>
-				<img
-					src="img/arrow-up.png"
-					alt="additionally"
-					className={`add-tabs ${addTabStatus ? "active" : ""}`}
-					onClick={() => setAddTabStatus((prev) => !prev)}
-				/>
-				{addTabStatus && (
-					<ul className="add-list">
-						{tabsList.map((tab) => (
-							<li
-								className="item"
-								key={tab}
-								onClick={() => {
-									createTab(tab);
-									setParams(tab);
-								}}>
-								<img
-									src={`img/${tab}.png`}
-									alt=""
-									className="item-icon"
-								/>
-								<p>{tab}</p>
-							</li>
-						))}
-					</ul>
-				)}
+				<div className="field" />
 			</div>
-			<div className="field" />
-		</div>
+		</DragDropContext>
 	);
 }
 
