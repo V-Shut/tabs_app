@@ -2,24 +2,17 @@ import { useNavigate } from "react-router-dom";
 import "./style.css";
 import { useState } from "react";
 
-export const Tab = ({ tab, deleteTab }) => {
+export const Tab = ({ tab, deleteTab, setParams }) => {
 	const [hovered, setHovered] = useState(false);
 	const navigate = useNavigate();
-  
+
 	const params = new URLSearchParams(window.location.search);
 	const currentTab = params.get("tab");
-  const tabStatus = currentTab === tab.toLowerCase().trim().replace(/\s+/g, "");
-
-	const setParams = (param) => {
-		const createdParam = param.toLowerCase().trim().replace(/\s+/g, "");
-		navigate(`?tab=${createdParam}`);
-		console.log(createdParam);
-	};
-
+	const tabStatus = currentTab === tab.toLowerCase().trim().replace(/\s+/g, "");
 
 	return (
 		<div
-			className={`tab ${tabStatus ? 'choosed' : ''}`}
+			className={`tab ${tabStatus ? "choosed" : ""}`}
 			onClick={() => setParams(tab)}
 			onMouseEnter={() => setHovered(true)}
 			onMouseLeave={() => setHovered(false)}>
@@ -41,12 +34,14 @@ export const Tab = ({ tab, deleteTab }) => {
 				<img
 					src="img/delete.png"
 					alt="delete button"
-          className="delete"
-          onClick={() => deleteTab(tab)}
+					className="delete"
+					onClick={(e) => {
+						e.stopPropagation();
+						deleteTab(tab);
+					}}
 				/>
-      )}
-      
-    {tabStatus && <div className="border"></div>}
+			)}
+			{tabStatus && <div className="border"></div>}
 		</div>
 	);
 };
