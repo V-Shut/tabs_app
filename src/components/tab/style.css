@@ -1,0 +1,37 @@
+.tab {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+  padding: 0 20px;
+  position: relative;
+}
+
+.tab::after {
+  content: '';
+  position: absolute;
+  height: 16px;
+  width: 1px;
+  background-color: #7F858D;
+  right: 0;
+}
+
+.tab:hover {
+  background-color: #F1F5F8;
+  cursor: pointer;
+  filter: grayscale(100%);
+}
+
+.tab-name {
+  font-family: "Poppins", sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 16px;
+  margin: 0;
+  color: #7F858D;
+  white-space: nowrap;
+}
+
+.tab-icon {
+  margin-right: 10px;
+}
