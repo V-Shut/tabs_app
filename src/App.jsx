@@ -84,7 +84,7 @@ function App() {
 						alt="pinned"
 						className="pinned"
 					/>
-					<Droppable droppableId="tabs">
+					<Droppable droppableId="tabs" direction="horizontal">
 						{(provided) => (
 							<div
 								className="tabs-container"
